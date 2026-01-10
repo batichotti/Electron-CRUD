@@ -2,11 +2,19 @@ import { useState } from "react"
 
 export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
 
-    const [number, setNumber] = useState('');
+    const [numero, setNumero] = useState('');
     const [cnpj, setCnpj] = useState('');
     const [descricao, setDescricao] = useState('');
     const [data, setData] = useState('');
     const [valor, setValor] = useState('');
+
+    const handleReset = () => {
+        setNumero('');
+        setCnpj('');
+        setDescricao('');
+        setData('');
+        setValor('');
+    };
 
     return (
         <>
@@ -36,6 +44,15 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 className="input input-bordered w-full"
                                 placeholder="Informe o número"
                                 required
+                                value={numero}
+                                inputMode="numeric"
+                                onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    if (/^\d*$/.test(value)) {
+                                        setNumero(value);
+                                    }
+                                }}
                             />
                         </div>
 
@@ -45,10 +62,12 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                             </label>
                             <input
                                 id="cnpj"
-                                type="number"
+                                type="text"
                                 className="input input-bordered w-full"
                                 placeholder="00.000.000/0000-00"
                                 required
+                                value={cnpj}
+                                onChange={(e) => setCnpj(e.target.value)}
                             />
                         </div>
 
@@ -62,6 +81,8 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 className="input input-bordered w-full"
                                 placeholder="Descreva a nota"
                                 required
+                                value={descricao}
+                                onChange={(e) => setDescricao(e.target.value)}
                             />
                         </div>
 
@@ -74,6 +95,8 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 type="date"
                                 className="input input-bordered w-full"
                                 required
+                                value={data}
+                                onChange={(e) => setData(e.target.value)}
                             />
                         </div>
 
@@ -89,11 +112,13 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 step="0.01"
                                 min="0"
                                 required
+                                value={valor}
+                                onChange={(e) => setValor(e.target.value)}
                             />
                         </div>
 
                         <div className="modal-action flex items-center justify-end gap-3 pt-2">
-                            <button type="reset" className="btn btn-outline">Resetar</button>
+                            <button type="button" onClick={handleReset} className="btn btn-outline">Resetar</button>
                             <button type="submit" className="btn btn-success">{mode === 'edit' ? 'Salvar' : 'Adicionar Nota'}</button>
                         </div>
                     </form>
