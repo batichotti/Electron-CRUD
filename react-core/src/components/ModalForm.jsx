@@ -16,6 +16,11 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
         setValor('');
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onClose();
+    }
+
     return (
         <>
             <dialog id="my_modal_3" className="modal" open={isOpen}>
@@ -33,7 +38,7 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                         {mode === 'edit' ? 'Modo de Edição' : 'Detalhes da Nota Fiscal'}
                     </h3>
 
-                    <form className="space-y-4" method="dialog" onSubmit={onSubmit}>
+                    <form className="space-y-4" method="dialog" onSubmit={handleSubmit}>
                         <div className="form-control">
                             <label className="label" htmlFor="numero">
                                 <span className="label-text">Número</span>
@@ -43,7 +48,6 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 type="text"
                                 className="input input-bordered w-full"
                                 placeholder="Informe o número"
-                                required
                                 value={numero}
                                 inputMode="numeric"
                                 onChange={(e) => {
@@ -53,6 +57,7 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                         setNumero(value);
                                     }
                                 }}
+                                required
                             />
                         </div>
 
@@ -65,9 +70,24 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 type="text"
                                 className="input input-bordered w-full"
                                 placeholder="00.000.000/0000-00"
-                                required
                                 value={cnpj}
-                                onChange={(e) => setCnpj(e.target.value)}
+                                inputMode="numeric"
+                                maxLength={18}
+                                onChange={(e) => {
+                                    let value = e.target.value;
+
+                                    if (!/^\d*$/.test(value.replace(/\D/g, ""))) return;
+
+                                    value = value.replace(/\D/g, "");
+                                    value = value
+                                        .replace(/^(\d{2})(\d)/, "$1.$2")
+                                        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                                        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+                                        .replace(/(\d{4})(\d)/, "$1-$2");
+
+                                    setCnpj(value);
+                                }}
+                                required
                             />
                         </div>
 
@@ -80,9 +100,10 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 type="text"
                                 className="input input-bordered w-full"
                                 placeholder="Descreva a nota"
-                                required
+                                maxLength={200}
                                 value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
+                                required
                             />
                         </div>
 
@@ -94,9 +115,9 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 id="data"
                                 type="date"
                                 className="input input-bordered w-full"
-                                required
                                 value={data}
                                 onChange={(e) => setData(e.target.value)}
+                                required
                             />
                         </div>
 
@@ -108,12 +129,12 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
                                 id="valor"
                                 type="number"
                                 className="input input-bordered w-full"
-                                placeholder="0,00"
+                                placeholder="R$ 0,00"
                                 step="0.01"
-                                min="0"
-                                required
+                                min="0.01"
                                 value={valor}
                                 onChange={(e) => setValor(e.target.value)}
+                                required
                             />
                         </div>
 

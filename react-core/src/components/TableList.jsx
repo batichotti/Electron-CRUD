@@ -1,53 +1,51 @@
-export default function TableList({ handleOpen }) {
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
-    const items = [ {
-        id: 1,
-        numero_nota_fiscal: "012",
-        cnpj: 1,
-        descricao: "Descreve o produto 1",
-        data: new Date(),
-        valor: 10,
-    },
-    {
-        id: 2,
-        numero_nota_fiscal: 2,
-        cnpj: 2,
-        descricao: "Descreve o produto 2",
-        data: new Date(),
-        valor: 20,
-    },
-    {
-        id: 3,
-        numero_nota_fiscal: 3,
-        cnpj: 3,
-        descricao: "Descreve o produto 3",
-        data: new Date(),
-        valor: 30,
-    } ]
+export default function TableList({ handleOpen }) {
+    const [tableData, setTableData] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async() => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/notas');
+                console.log(response.data);
+                setTableData(response.data);
+
+            } catch (err){
+                setError(err.message);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
         <>
+        
+        {error && <div className="alert alert-error">{error}</div>}
+
         <div className="overflow-x-auto mt-10">
         <table className="table">
-            {/* head */}
             <thead>
             <tr>
                 <th></th>
                 <th>Data</th>
                 <th>CNPJ</th>
-                <th>Nota Fiscal</th>
+                <th>N° Nota Fiscal</th>
                 <th>Valor</th>
+                <th>Descrição</th>
             </tr>
             </thead>
             <tbody className="hover">
-            {/* row 1 */}
-            {items.map((item) => (
-                <tr key={item.id}>
-                <th>{item.id}</th>
-                <td>{item.data.getDay()}/{item.data.getMonth()+1}/{item.data.getFullYear()}</td>
-                <td>{item.numero_nota_fiscal}</td>
-                <td>{item.cnpj}</td>
-                <td>{item.valor}</td>
+            {tableData.map((item) => (
+                <tr key={item.nota_id}>
+                <th>{item.nota_id}</th>
+                <td>{new Date(new Date(item.nota_data).getTime() + new Date(item.nota_data).getTimezoneOffset() * 60000).toLocaleDateString('pt-BR')}</td>
+                <td>{item.nota_numero}</td>
+                <td>{item.nota_cnpj}</td>
+                <td>{item.nota_valor}</td>
+                <td>{item.nota_descricao}</td>
                 <td><button onClick={() => handleOpen('edit') } className="btn btn-secondary w-20">Atualizar</button></td>
                 <td><button className="btn btn-accent w-20">Deletar</button></td>
                 </tr>
