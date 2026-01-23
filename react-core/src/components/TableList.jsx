@@ -1,9 +1,36 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
-export default function TableList({ searchTerm, onEdit, onDelete, refreshKey }) {
+export default function TableList({ searchTerm, onEdit, onDelete, refreshKey, onTotalsUpdate }) {
     const [tableData, setTableData] = useState([]);
     const [error, setError] = useState(null);
+
+    const calculateTotals = (data) => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        let monthly = 0;
+        let annual = 0;
+
+        data.forEach((item) => {
+            const parsedValue = Number(item.nota_valor) || 0;
+
+            // Normalize date to local time to avoid off-by-one month/year due to timezone
+            const rawDate = new Date(item.nota_data);
+            if (Number.isNaN(rawDate.getTime())) return;
+            const date = new Date(rawDate.getTime() + rawDate.getTimezoneOffset() * 60000);
+
+            if (date.getFullYear() === currentYear) {
+                annual += parsedValue;
+                if (date.getMonth() === currentMonth) {
+                    monthly += parsedValue;
+                }
+            }
+        });
+
+        return { monthly, annual };
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,6 +46,12 @@ export default function TableList({ searchTerm, onEdit, onDelete, refreshKey }) 
         fetchData();
     }, [refreshKey]);
 
+    useEffect(() => {
+        if (typeof onTotalsUpdate === 'function') {
+            onTotalsUpdate(calculateTotals(tableData));
+        }
+    }, [tableData, onTotalsUpdate]);
+
     const loweredSearch = searchTerm.toLowerCase();
     const filteredData = tableData.filter((item) =>
         item.nota_descricao.toLowerCase().includes(loweredSearch) ||
@@ -30,9 +63,9 @@ export default function TableList({ searchTerm, onEdit, onDelete, refreshKey }) 
         
         {error && <div className="alert alert-error">{error}</div>}
 
-        <div className="overflow-x-auto mt-10">
-        <table className="table">
-            <thead>
+        <div className="mt-10 h-96 overflow-auto rounded-lg">
+        <table className="table table-pin-rows">
+            <thead className="sticky top-0 bg-base-100 z-10">
             <tr>
                 <th></th>
                 <th>Data</th>
@@ -40,6 +73,8 @@ export default function TableList({ searchTerm, onEdit, onDelete, refreshKey }) 
                 <th>CNPJ</th>
                 <th>Valor</th>
                 <th>Descrição</th>
+                <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody className="hover">

@@ -12,6 +12,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [itemData, setItemData] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [totals, setTotals] = useState({ monthly: 0, annual: 0 });
 
   const handleOpen = (mode, item = null) => {
     setModalMode(mode);
@@ -20,6 +21,10 @@ function App() {
   }
 
   const triggerRefresh = () => setRefreshKey((prev) => prev + 1);
+
+  const handleTotalsUpdate = (newTotals) => {
+    setTotals(newTotals);
+  };
 
   const handleSubmit = async(newItem) => {
     if (modalMode === 'add') {
@@ -68,9 +73,9 @@ function App() {
   return (
     <>
       <NavBar onOpen={() => handleOpen('add')} onSearch={setSearchTerm} onRefresh={triggerRefresh} />
-      <TableList searchTerm={searchTerm} onEdit={(item) => handleOpen('edit', item)} onDelete={handleDelete} refreshKey={refreshKey} />
+      <TableList searchTerm={searchTerm} onEdit={(item) => handleOpen('edit', item)} onDelete={handleDelete} refreshKey={refreshKey} onTotalsUpdate={handleTotalsUpdate} />
       <ModalForm isOpen={isOpen} onClose={() => setIsOpen(false)} onSubmit={handleSubmit} mode={modalMode} itemData={itemData} />
-      <Footer />
+      <Footer totals={totals} />
     </>
   )
 }

@@ -138,6 +138,7 @@ export default function ModalForm({ isOpen, onClose, mode, onSubmit, itemData })
                                 className="input input-bordered w-full"
                                 value={data}
                                 onChange={(e) => setData(e.target.value)}
+                                max={new Date().toISOString().split('T')[0]}
                                 required
                             />
                         </div>
